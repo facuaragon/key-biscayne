@@ -20,7 +20,7 @@ function WebCamRecorder() {
       return;
     }
     const blob = new Blob(chunks, {
-      type: "video/x-matroska;codecs=avc1,opus",
+      type: "video/mp4",
     });
 
     setDownloadLink(URL.createObjectURL(blob));
@@ -56,17 +56,12 @@ function WebCamRecorder() {
     prepareStream();
   }, []);
 
-  const videoFormat =
+  const isSafariMobile =
     window.navigator.userAgent.indexOf("Safari") !== -1 &&
-    window.navigator.userAgent.indexOf("Mobile") !== -1
-      ? "video/mp4"
-      : "video/webm";
+    window.navigator.userAgent.indexOf("Mobile") !== -1;
 
-  const videoCodec =
-    window.navigator.userAgent.indexOf("Safari") !== -1 &&
-    window.navigator.userAgent.indexOf("Mobile") !== -1
-      ? "H.264"
-      : "avc1";
+  const videoFormat = isSafariMobile ? "video/mp4" : "video/webm";
+  const videoCodec = isSafariMobile ? "H.264" : "vp8"; // Cambia el códec según tu preferencia
 
   function startRecording() {
     setVideoPreviewUrl(null);
