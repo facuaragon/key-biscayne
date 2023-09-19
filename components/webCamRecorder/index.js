@@ -56,6 +56,18 @@ function WebCamRecorder() {
     prepareStream();
   }, []);
 
+  const videoFormat =
+    window.navigator.userAgent.indexOf("Safari") !== -1 &&
+    window.navigator.userAgent.indexOf("Mobile") !== -1
+      ? "video/mp4"
+      : "video/webm";
+
+  const videoCodec =
+    window.navigator.userAgent.indexOf("Safari") !== -1 &&
+    window.navigator.userAgent.indexOf("Mobile") !== -1
+      ? "H.264"
+      : "avc1";
+
   function startRecording() {
     setVideoPreviewUrl(null);
 
@@ -67,7 +79,10 @@ function WebCamRecorder() {
     }
     setVideoPreviewUrl(null);
     setChunks([]); // Clear the chunks when starting recording
-    streamRecorderRef.current = new MediaRecorder(streamRef.current);
+    const mimeType = `${videoFormat};codecs=${videoCodec},opus`;
+    streamRecorderRef.current = new MediaRecorder(streamRef.current, {
+      mimeType,
+    });
     streamRecorderRef.current.start();
     streamRecorderRef.current.ondataavailable = function (event) {
       setChunks((prevChunks) => [...prevChunks, event.data]);
