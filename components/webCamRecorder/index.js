@@ -56,12 +56,22 @@ function WebCamRecorder() {
     prepareStream();
   }, []);
 
-  const isSafariMobile =
-    window.navigator.userAgent.indexOf("Safari") !== -1 &&
-    window.navigator.userAgent.indexOf("Mobile") !== -1;
+  if (typeof window !== "undefined") {
+    // The code that relies on the 'window' object should be placed here
+    const isSafariMobile =
+      window.navigator.userAgent.indexOf("Safari") !== -1 &&
+      window.navigator.userAgent.indexOf("Mobile") !== -1;
 
-  const videoFormat = isSafariMobile ? "video/mp4" : "video/webm";
-  const videoCodec = isSafariMobile ? "H.264" : "vp8"; // Cambia el códec según tu preferencia
+    const videoFormat = isSafariMobile ? "video/mp4" : "video/webm";
+
+    // Rest of your code that uses 'videoFormat'
+  } else {
+    // Handle the case where 'window' is not available, e.g., provide a default value.
+    const videoFormat = "video/mp4";
+
+    // You can also throw an error or log a message to indicate the issue.
+    console.error("window is not available. Defaulting to video/mp4 format.");
+  }
 
   function startRecording() {
     setVideoPreviewUrl(null);
