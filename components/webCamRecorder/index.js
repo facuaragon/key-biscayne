@@ -11,6 +11,8 @@ function WebCamRecorder() {
   const [error, setError] = useState(null);
   const [chunks, setChunks] = useState([]);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState(null);
+  const [format, setFormat] = useState();
+  const [codec, setCodec] = useState();
 
   useEffect(() => {
     if (isRecording) {
@@ -56,22 +58,31 @@ function WebCamRecorder() {
     prepareStream();
   }, []);
 
-  if (typeof window !== "undefined") {
-    // The code that relies on the 'window' object should be placed here
-    const isSafariMobile =
-      window.navigator.userAgent.indexOf("Safari") !== -1 &&
-      window.navigator.userAgent.indexOf("Mobile") !== -1;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      // The code that relies on the 'window' object should be placed here
+      const isSafariMobile =
+        window.navigator.userAgent.indexOf("Safari") !== -1 &&
+        window.navigator.userAgent.indexOf("Mobile") !== -1;
 
-    const videoFormat = isSafariMobile ? "video/mp4" : "video/webm";
+      const videoFormat = isSafariMobile ? "video/mp4" : "video/webm";
+      const videoCodec = isSafariMobile ? "h264" : "vp9";
+      setFormat(videoFormat);
+      setCodec(videoCodec);
 
-    // Rest of your code that uses 'videoFormat'
-  } else {
-    // Handle the case where 'window' is not available, e.g., provide a default value.
-    const videoFormat = "video/mp4";
+      // Rest of your code that uses 'videoFormat'
+    } else {
+      // Handle the case where 'window' is not available, e.g., provide a default value.
+      const videoFormat = "video/mp4";
+      const videoCodec = "h264";
 
-    // You can also throw an error or log a message to indicate the issue.
-    console.error("window is not available. Defaulting to video/mp4 format.");
-  }
+      setFormat(videoFormat);
+      setFormat(videoCodec);
+
+      // You can also throw an error or log a message to indicate the issue.
+      console.error("window is not available. Defaulting to video/mp4 format.");
+    }
+  }, []);
 
   function startRecording() {
     setVideoPreviewUrl(null);
@@ -84,7 +95,7 @@ function WebCamRecorder() {
     }
     setVideoPreviewUrl(null);
     setChunks([]); // Clear the chunks when starting recording
-    const mimeType = `${videoFormat};codecs=${videoCodec},opus`;
+    const mimeType = `${format};codecs=${codec},opus`;
     streamRecorderRef.current = new MediaRecorder(streamRef.current, {
       mimeType,
     });
