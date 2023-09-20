@@ -95,10 +95,27 @@ function WebCamRecorder() {
     }
     setVideoPreviewUrl(null);
     setChunks([]); // Clear the chunks when starting recording
-    const mimeType = `${format};codecs=${codec},opus`;
-    streamRecorderRef.current = new MediaRecorder(streamRef.current, {
-      mimeType,
-    });
+
+    // const mimeType = `${format};codecs=${codec},opus`;
+    // streamRecorderRef.current = new MediaRecorder(streamRef.current, {
+    //   mimeType,
+    // });
+    try {
+      streamRecorderRef.current = new MediaRecorder(streamRef.current, {
+        mimeType: "video/webm;codecs=h264,opus",
+      });
+    } catch (err1) {
+      try {
+        // Fallback for iOS
+        streamRecorderRef.current = new MediaRecorder(streamRef.current, {
+          mimeType: "video/mp4;codecs=h264,opus",
+        });
+      } catch (err2) {
+        // If fallback doesn't work either. Log / process errors.
+        console.error({ err1 });
+        console.error({ err2 });
+      }
+    }
     streamRecorderRef.current.start();
     streamRecorderRef.current.ondataavailable = function (event) {
       setChunks((prevChunks) => [...prevChunks, event.data]);
