@@ -96,26 +96,6 @@ function WebCamRecorder() {
     setVideoPreviewUrl(null);
     setChunks([]); // Clear the chunks when starting recording
 
-    // const mimeType = `${format};codecs=${codec},opus`;
-    // streamRecorderRef.current = new MediaRecorder(streamRef.current, {
-    //   mimeType,
-    // });
-    // try {
-    //   streamRecorderRef.current = new MediaRecorder(streamRef.current, {
-    //     mimeType: "video/webm;codecs=h264,opus",
-    //   });
-    // } catch (err1) {
-    //   try {
-    //     // Fallback for iOS
-    //     streamRecorderRef.current = new MediaRecorder(streamRef.current, {
-    //       mimeType: "video/mp4;codecs=h264,opus",
-    //     });
-    //   } catch (err2) {
-    //     // If fallback doesn't work either. Log / process errors.
-    //     console.error({ err1 });
-    //     console.error({ err2 });
-    //   }
-    // }
     streamRecorderRef.current = new MediaRecorder(streamRef.current);
     streamRecorderRef.current.start();
     streamRecorderRef.current.ondataavailable = function (event) {
@@ -131,6 +111,30 @@ function WebCamRecorder() {
     }
     streamRecorderRef.current.stop();
   }
+
+  const sendEmail = async () => {
+    async function blobUrlToFile(blobUrl) {
+      const response = await fetch(blobUrl);
+      const blob = await response.blob();
+      // console.log("blob:", blob);
+      return new File([blob], "video.mov", { type: "video/quicktime" });
+    }
+    try {
+      const videoFile = await blobUrlToFile(downloadLink);
+      // console.log(videoFile);
+      const formData = new FormData();
+      formData.append("name", "Facundo");
+      formData.set("videoFile", videoFile);
+      const res = await fetch("api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      console.log(data);
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -149,7 +153,7 @@ function WebCamRecorder() {
           style={videoPreviewUrl ? { display: "none" } : {}}
         />
         {videoPreviewUrl && (
-          <video src={downloadLink} controls autoPlay playsInline />
+          <video src={downloadLink} autoPlay playsInline loop />
         )}
       </div>
 
@@ -172,10 +176,15 @@ function WebCamRecorder() {
           </button>
         </div> */}
       {/* {downloadLink && (
-            <a href={downloadLink} download="file.mp4">
-              Descargar
-            </a>
-          )} */}
+        <a href={downloadLink} download="file.mp4">
+          Descargar
+        </a>
+      )} */}
+      {downloadLink && (
+        <div className={styles.send} onClick={sendEmail}>
+          Send Mail
+        </div>
+      )}
       <img
         src="/ISOTIPO_KEYBISCAYNE_BLANCO.png"
         alt="isotipo key-biscayne"
